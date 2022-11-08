@@ -1,5 +1,5 @@
 const express = require('express')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
 const cors = require('cors')
 require('dotenv').config();
@@ -26,8 +26,6 @@ async function dbConnect() {
 }
 dbConnect();
 
-// Collections 
-const servicesCollection = client.db('moonsLawDB').collection('services')
 
 // endpoints
 app.get('/', (req, res) => {
@@ -36,6 +34,9 @@ app.get('/', (req, res) => {
 
 async function run() {
     try {
+
+        // Collections 
+        const servicesCollection = client.db('moonsLawDB').collection('services')
 
         // services 
 
@@ -48,10 +49,11 @@ async function run() {
 
         app.get('/services/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id) };
+            const query = { _id: ObjectId(id) }
             const result = await servicesCollection.findOne(query);
             res.send(result);
         });
+
 
         app.post('/services', async (req, res) => {
             const service = req.body;
@@ -68,7 +70,7 @@ async function run() {
 
 }
 
-run().catch(err => console.error(err));
+run().catch(error => console.error(error));
 
 
 
