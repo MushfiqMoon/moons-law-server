@@ -34,6 +34,41 @@ app.get('/', (req, res) => {
     res.send('welcome to Moons-Law')
 })
 
+async function run() {
+    try {
+
+        // services 
+
+        app.get('/services', async (req, res) => {
+            const query = {}
+            const cursor = servicesCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        app.get('/services/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await servicesCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.post('/services', async (req, res) => {
+            const service = req.body;
+            console.log(service)
+            const result = await servicesCollection.insertOne(service);
+            res.send(result);
+        });
+
+    }
+
+    finally {
+
+    }
+
+}
+
+run().catch(err => console.error(err));
 
 
 
