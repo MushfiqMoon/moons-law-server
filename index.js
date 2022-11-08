@@ -19,18 +19,27 @@ const client = new MongoClient(uri);
 async function dbConnect() {
     try {
         await client.connect();
-        console.log("Database connected");
+        // console.log("Database connected");
     } catch (error) {
         console.log(error.name);
     }
 }
 dbConnect();
 
+// Collections 
+const servicesCollection = client.db('moonsLawDB').collection('services')
+
+// endpoints
+app.get('/', (req, res) => {
+    res.send('welcome to Moons-Law')
+})
 
 
 
 
 
+
+// status check
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
