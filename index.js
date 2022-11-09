@@ -65,11 +65,19 @@ async function run() {
         // reviews API
         app.get('/reviews/', async (req, res) => {
             let query = {}
-            if (req.query.serviceId) {
+            if (req.query.sid) {
                 query = {
-                    serviceId: req.query.serviceId
+                    sid: req.query.sid
                 }
+                // http://localhost:5000/reviews?sid=636ae09f3b18aaa81882c415
             }
+            if (req.query.rmail) {
+                query = {
+                    rmail: req.query.rmail
+                }
+                // http://localhost:5000/reviews?rmail=mushfiq.moon013@gmail.com
+            }
+
             const cursor = reviewsCollection.find(query);
             const result = await cursor.toArray();
             res.send(result);
