@@ -37,9 +37,10 @@ async function run() {
 
         // Collections 
         const servicesCollection = client.db('moonsLawDB').collection('services')
+        const reviewsCollection = client.db('moonsLawDB').collection('reviews')
 
-        // services 
 
+        // services API
         app.get('/services', async (req, res) => {
             const query = {}
             const cursor = servicesCollection.find(query);
@@ -54,11 +55,30 @@ async function run() {
             res.send(result);
         });
 
-
         app.post('/services', async (req, res) => {
             const service = req.body;
-            console.log(service)
             const result = await servicesCollection.insertOne(service);
+            res.send(result);
+        });
+
+
+        // reviews API
+        app.get('/reviews/', async (req, res) => {
+            let query = {}
+            if (req.query.serviceId) {
+                query = {
+                    serviceId: req.query.serviceId
+                }
+            }
+            const cursor = reviewsCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+
+        });
+
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            const result = await reviewsCollection.insertOne(review);
             res.send(result);
         });
 
