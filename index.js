@@ -19,24 +19,6 @@ const uri = process.env.MONGO_DB_URI;
 
 const client = new MongoClient(uri);
 
-// Json web token varification 
-function verifyJWT(req, res, next) {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-        return res.status(401).send({ message: 'Unauthorized Access' });
-    }
-    const token = authHeader.split(' ')[1];
-
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
-        if (err) {
-            return res.status(403).send({ message: 'Forbidden Access' });
-        }
-        req.decoded = decoded;
-        next();
-    })
-}
-
 
 async function dbConnect() {
     try {
@@ -90,7 +72,7 @@ async function run() {
 
 
         // reviews API
-        app.get('/reviews/', verifyJWT, async (req, res) => {
+        app.get('/reviews/', async (req, res) => {
 
             let query = {}
             if (req.query.rmail) {
@@ -111,26 +93,26 @@ async function run() {
 
         });
 
-        app.get('/reviews/:id', verifyJWT, async (req, res) => {
+        app.get('/reviews/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await reviewsCollection.findOne(query);
             res.send(result);
         });
 
-        app.post('/reviews', verifyJWT, async (req, res) => {
+        app.post('/reviews', async (req, res) => {
             const review = req.body;
             const result = await reviewsCollection.insertOne(review);
             res.send(result);
         });
 
-        app.patch('/reviews/:id', verifyJWT, async (req, res) => {
+        app.patch('/reviews/:id', async (req, res) => {
             const id = req.params.id;
             const result = await reviewsCollection.updateOne({ _id: ObjectId(id) }, { $set: req.body });
             res.send(result);
         });
 
-        app.delete('/reviews/:id', verifyJWT, async (req, res) => {
+        app.delete('/reviews/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await reviewsCollection.deleteOne(query);
