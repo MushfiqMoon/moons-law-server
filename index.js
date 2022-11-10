@@ -92,12 +92,6 @@ async function run() {
         // reviews API
         app.get('/reviews/',verifyJWT, async (req, res) => {
 
-            const decoded = req.decoded;
-            
-            if(decoded.email !== req.query.rmail){
-                res.status(401).send({message: 'Unauthorized Accesss'})
-            }
-
             let query = {}
             if (req.query.rmail) {
                 query = {
