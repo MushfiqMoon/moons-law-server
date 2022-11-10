@@ -112,7 +112,6 @@ async function run() {
             const result = await reviewsCollection.deleteOne(query);
             res.send(result);
         });
-
     }
 
     finally {
