@@ -43,12 +43,6 @@ async function run() {
         const servicesCollection = client.db('moonsLawDB').collection('services')
         const reviewsCollection = client.db('moonsLawDB').collection('reviews')
 
-        app.post('/jwt', (req, res) => {
-            const user = req.body;
-            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '7d' })
-            res.send({ token })
-        })
-
         // services API
         app.get('/services', async (req, res) => {
             const query = {}
