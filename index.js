@@ -95,20 +95,22 @@ async function run() {
             const decoded = req.decoded;
             
             if(decoded.email !== req.query.rmail){
-                res.status(401).send({message: 'Unauthorized Access'})
+                res.status(401).send({message: 'Unauthorized Accesss'})
             }
 
             let query = {}
-            if (req.query.sid) {
-                query = {
-                    sid: req.query.sid
-                }
-            }
             if (req.query.rmail) {
                 query = {
                     rmail: req.query.rmail
                 }
             }
+            
+            if (req.query.sid) {
+                query = {
+                    sid: req.query.sid
+                }
+            }
+            
 
             const cursor = reviewsCollection.find(query);
             const result = await cursor.toArray();
@@ -116,26 +118,26 @@ async function run() {
 
         });
 
-        app.get('/reviews/:id', async (req, res) => {
+        app.get('/reviews/:id',verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await reviewsCollection.findOne(query);
             res.send(result);
         });
 
-        app.post('/reviews', async (req, res) => {
+        app.post('/reviews',verifyJWT, async (req, res) => {
             const review = req.body;
             const result = await reviewsCollection.insertOne(review);
             res.send(result);
         });
 
-        app.patch('/reviews/:id', async (req, res) => {
+        app.patch('/reviews/:id',verifyJWT, async (req, res) => {
             const id = req.params.id;
             const result = await reviewsCollection.updateOne({ _id: ObjectId(id) }, { $set: req.body });
             res.send(result);
         });
 
-        app.delete('/reviews/:id', async (req, res) => {
+        app.delete('/reviews/:id',verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await reviewsCollection.deleteOne(query);
