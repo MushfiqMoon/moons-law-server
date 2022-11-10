@@ -1,8 +1,11 @@
 const express = require('express')
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const app = express()
 const cors = require('cors')
 require('dotenv').config();
+
+
+const app = express()
 const port = process.env.PORT || 5000
 
 
@@ -15,6 +18,25 @@ app.use(express.json())
 const uri = process.env.MONGO_DB_URI;
 
 const client = new MongoClient(uri);
+
+// Json web token varification 
+function verifyJWT(req, res, next) {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(401).send({ message: 'Unauthorized Access'});
+    }
+    const token = authHeader.split(' ')[1];
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+        if (err) {
+            return res.status(403).send({ message: 'Forbidden Access'});
+        }
+        req.decoded = decoded;
+        next();
+    })
+}
+
 
 async function dbConnect() {
     try {
@@ -39,6 +61,11 @@ async function run() {
         const servicesCollection = client.db('moonsLawDB').collection('services')
         const reviewsCollection = client.db('moonsLawDB').collection('reviews')
 
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '7d' })
+            res.send({ token })
+        })
 
         // services API
         app.get('/services', async (req, res) => {
@@ -63,19 +90,24 @@ async function run() {
 
 
         // reviews API
-        app.get('/reviews/', async (req, res) => {
+        app.get('/reviews/',verifyJWT, async (req, res) => {
+
+            const decoded = req.decoded;
+            
+            if(decoded.email !== req.query.rmail){
+                res.status(401).send({message: 'Unauthorized Access'})
+            }
+
             let query = {}
             if (req.query.sid) {
                 query = {
                     sid: req.query.sid
                 }
-                // http://localhost:5000/reviews?sid=636ae09f3b18aaa81882c415
             }
             if (req.query.rmail) {
                 query = {
                     rmail: req.query.rmail
                 }
-                // http://localhost:5000/reviews?rmail=mushfiq.moon013@gmail.com
             }
 
             const cursor = reviewsCollection.find(query);
@@ -103,8 +135,6 @@ async function run() {
             res.send(result);
         });
 
-
-
         app.delete('/reviews/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -115,15 +145,9 @@ async function run() {
     }
 
     finally {
-
     }
-
 }
-
 run().catch(error => console.error(error));
-
-
-
 
 
 // status check
